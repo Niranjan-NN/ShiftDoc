@@ -321,7 +321,80 @@ def render_badge(text: str, color: str):
     return f'<span class="badge" style="background:{color}20; color:{color}; border:1px solid {color}40">{text}</span>'
 
 
-def render_score_gauge(score: int, band: str, color: str):
+def render_score_gauge(score: int, band: str, color: str, chart_key: str):
+    """Render a Plotly gauge chart for the migration score."""
+
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=score,
+
+        domain={"x": [0, 1], "y": [0, 1]},
+
+        gauge={
+            "axis": {
+                "range": [0, 100],
+                "tickcolor": "#000000",
+                "tickfont": {"color": "#000000"}
+            },
+
+            "bar": {
+                "color": color,
+                "thickness": 0.25
+            },
+
+            "bgcolor": "#000000",
+
+            "bordercolor": "#2a2f3e",
+
+            "steps": [
+                {"range": [0, 40], "color": "#2a1a1a"},
+                {"range": [40, 70], "color": "#2a2a1a"},
+                {"range": [70, 100], "color": "#1a2a1a"},
+            ],
+
+            "threshold": {
+                "line": {
+                    "color": color,
+                    "width": 3
+                },
+
+                "thickness": 0.75,
+                "value": score
+            }
+        },
+
+        number={
+            "font": {
+                "size": 48,
+                "color": "#000000",
+                "family": "DM Sans"
+            }
+        }
+    ))
+
+    fig.update_layout(
+        height=280,
+
+        margin=dict(
+            t=20,
+            b=10,
+            l=20,
+            r=20
+        ),
+
+        paper_bgcolor="rgba(0,0,0,0)",
+
+        font={
+            "color": "#000000"
+        }
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True,
+        key=chart_key
+    )
+
     """Render a Plotly gauge chart for the migration score."""
     fig = go.Figure(go.Indicator(
         mode  = "gauge+number",
@@ -351,7 +424,11 @@ def render_score_gauge(score: int, band: str, color: str):
         paper_bgcolor = "rgba(0,0,0,0)",
         font = {"color": "#000000"},
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(
+    fig,
+    use_container_width=True,
+    key=f"score_gauge_{score}"
+)
 
 
 def render_rating_table(ai_result: dict):
@@ -556,7 +633,12 @@ for uploaded_file in uploaded_files:
 
         with col_score:
             st.markdown('<div class="section-header">Migration Score</div>', unsafe_allow_html=True)
-            render_score_gauge(score_result["score"], score_result["band"], score_result["band_color"])
+            render_score_gauge(
+                score_result["score"],
+                score_result["band"],
+                score_result["band_color"],
+                chart_key=f"score_chart_{file_name}"
+            )
             st.markdown(f"""
             <div style="text-align:center; margin-top:-10px;">
                 <span style="font-size:18px; font-weight:700; color:{score_result['band_color']}">
