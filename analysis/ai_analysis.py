@@ -94,7 +94,7 @@ def _call_new_sdk(api_key: str, prompt: str) -> str:
     assert new_genai is not None, "new_genai SDK not available"
     client = new_genai.Client(api_key=api_key)
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-2.0-flash",
         contents=prompt,
     )
     raw: Optional[str] = response.text
